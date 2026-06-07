@@ -13,7 +13,8 @@ metadata:
 
 # Unicode Location Normalizer
 
-When using location names that contain special characters (ö, ü, ğ, ş, ç, ı, etc.) in URLs or terminal commands, always normalize them first to avoid errors.
+When using location names that contain special characters (ö, ü, ğ, ş, ç, ı, etc.) in URLs or
+terminal commands, always normalize them first to avoid errors.
 
 ## When to Use
 
@@ -24,38 +25,42 @@ Load this skill whenever:
 
 ## Quick Reference
 
-| Input       | Correct output | Notes            |
-|-------------|----------------|------------------|
-| Köln        | Cologne        | Known alias      |
-| München     | Munich         | Known alias      |
-| Şanlıurfa   | Sanliurfa      | Turkish char map |
-| Düsseldorf  | Duesseldorf    | German ü → ue    |
-| Çanakkale   | Canakkale      | Turkish ç → c    |
+| Input        | Correct output | Notes                    |
+|-------------|----------------|--------------------------|
+| Köln        | Cologne        | Known alias              |
+| München     | Munich         | Known alias              |
+| Şanlıurfa   | Sanliurfa      | Turkish char map         |
+| Düsseldorf  | Duesseldorf    | German ü → ue            |
+| Çanakkale   | Canakkale      | Turkish ç → c            |
 
 ## Procedure
 
 1. Before using any location name in a URL or shell command, run the normalizer:
 
-    python3 ${HERMES_SKILL_DIR}/scripts/normalize.py "<location_name>"
+```
+python3 ${HERMES_SKILL_DIR}/scripts/normalize.py "<location_name>"
+```
 
 2. Use the output (not the original name) in all subsequent URL calls.
 
-Example — weather lookup:
+**Example — weather lookup:**
+```
+# Wrong (will error):
+curl -s "wttr.in/Köln?format=3"
 
-    # Wrong (will error):
-    curl -s "wttr.in/Köln?format=3"
+# Correct:
+NORMALIZED=$(python3 ${HERMES_SKILL_DIR}/scripts/normalize.py "Köln")
+curl -s "wttr.in/${NORMALIZED}?format=3"
+```
 
-    # Correct:
-    NORMALIZED=$(python3 ${HERMES_SKILL_DIR}/scripts/normalize.py "Köln")
-    curl -s "wttr.in/${NORMALIZED}?format=3"
-
-3. If the normalized name still fails, fall back to the English/international name (e.g., "Cologne" instead of "Koeln").
+3. If the normalized name still fails, fall back to the English/international name
+   (e.g., "Cologne" instead of "Koeln").
 
 ## Pitfalls
 
 - Do NOT URL-encode the special character and send it raw — many APIs reject encoded umlauts.
 - Do NOT assume the user's input is already ASCII — always run the normalizer first.
-- For Turkish dotless-i (ı) vs dotted-I (İ): both should become plain i or I.
+- For Turkish dotless-i (ı) vs dotted-I (İ): both should become plain `i` or `I`.
 
 ## Verification
 
